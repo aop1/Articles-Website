@@ -1,0 +1,153 @@
+<!-- article/views/reader.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reader</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f0f0f0;
+            padding: 10px;
+        }
+
+        main {
+            margin-top: 20px;
+        }
+
+        article {
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        p {
+            color: #555;
+        }
+
+        .user-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-info span {
+            font-weight: bold;
+        }
+
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        button {
+            background-color: #4caf50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            margin-left: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .role-selector {
+            display: flex;
+            align-items: center;
+        }
+
+        .role-selector label {
+            margin-right: 10px;
+        }
+
+        .role-selector select {
+            padding: 8px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="navigation-buttons">
+            <% if (previousArticle) { %>
+                <button onclick="location.href='/articles/<%= previousArticle._id %>'">Previous</button>
+            <% } %>
+            <% if (nextArticle) { %>
+                <button onclick="location.href='/articles/<%= nextArticle._id %>'">Next</button>
+            <% } %>
+        </div>
+        <div class="role-selector">
+            <label for="role">Role:</label>
+            <select id="role" name="role" onchange="changeRole(this)">
+                <option value="reader">Reader</option>
+                <option value="author">Author</option>
+            </select>
+        </div>
+        <div class="user-info">
+            <span>User: <%= username %></span>
+            <button onclick="location.href='/logout'">Logout</button>
+        </div>
+    </header>
+
+    <main>
+        <!-- Display the current article with title and body -->
+        <% if (currentArticle) { %>
+            <article>
+                <h2><%= currentArticle.title %></h2>
+                <p><%= currentArticle.body %></p>
+            </article>
+        <% } else { %>
+            <p>No articles to display.</p>
+        <% } %>
+    </main>
+</body>
+</html>
+
+<script>
+    function changeRole(select) {
+        const selectedRole = select.value;
+        if (selectedRole === 'author') {
+            window.location.href = '/author';
+        }
+    }
+    function updateUserRole() {
+        // Get the selected role
+        var selectedRole = document.getElementById("role").value;
+
+        // Create a new form element
+        var form = document.createElement("form");
+        form.method = "POST";
+        form.action = "/";
+
+        // Create a new input element for the role
+        var roleInput = document.createElement("input");
+        roleInput.type = "hidden";
+        roleInput.name = "role";
+        roleInput.value = selectedRole;
+
+        // Append the input to the form
+        form.appendChild(roleInput);
+
+        // Append the form to the document body
+        document.body.appendChild(form);
+
+        // Submit the form
+        form.submit();
+
+        // Refresh the page
+        location.reload(true);
+    }
+</script>

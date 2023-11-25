@@ -9,9 +9,10 @@ router.get('', (req, res) => {
     console.log(req.user.username)
     res.render('welcome', { username: req.user.username });
   } else {
-    //const filePath = path.join(__dirname, '../views/register.html');
+    // const filePath = path.join(__dirname, '../views/register.html');
     const filePath = path.join(__dirname, '../views/index.html');
     res.sendFile(filePath);
+    // res.sendFile('index')
   }
 });
 

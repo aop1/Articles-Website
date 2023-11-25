@@ -1,0 +1,82 @@
+<!-- article/views/home.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f0f0f0;
+            padding: 10px;
+        }
+
+        main {
+            margin-top: 20px;
+        }
+
+        article {
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        p {
+            color: #555;
+        }
+
+        button {
+            background-color: #4caf50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div>
+            <h1>Latest Articles</h1>
+        </div>
+        <div>
+            <button onclick="location.href='/register'">Register</button>
+            <button onclick="location.href='/login'">Login</button>
+        </div>
+    </header>
+
+    <main>
+        <!-- Display the first article as a headline with body -->
+        <% if (firstArticle) { %>
+            <article>
+                <h2><%= firstArticle.title %></h2>
+                <p><%= firstArticle.body %></p>
+            </article>
+        <% } %>
+
+        <!-- Display the remaining articles with title and teaser -->
+        <% for (const article of remainingArticles) { %>
+            <article>
+                <h2><%= article.title %></h2>
+                <p><%= article.teaser %></p>
+            </article>
+        <% } %>
+    </main>
+</body>
+</html>

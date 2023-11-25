@@ -9,7 +9,8 @@ mongoose.connect('mongodb://host.docker.internal:27017/daily', { useNewUrlParser
 
 app.set('view engine', 'ejs');  // res.render()
 
-app.use(bodyParser.urlencoded({ extended: true }));
+// app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 app.use(flash());
 app.use(
     session({
