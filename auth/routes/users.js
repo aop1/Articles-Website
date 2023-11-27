@@ -41,8 +41,10 @@ router.post('/authenticateToken', (req, res) => {
 //   res.sendFile(filePath);
 // });
 
-router.post('/register', (req, res) => {
-  console.log(req.body.username);
+router.post('/register', async (req, res) => {
+  // console.log(req.body.username);
+  const existingUser = await User.findOne({ username: req.body.username });
+  if (existingUser) return res.json({success: false});
   const newUser = new User({ username: req.body.username });
   newUser.setPassword(req.body.password);
 

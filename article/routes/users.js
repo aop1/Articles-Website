@@ -15,11 +15,10 @@ router.get('/register', async (req, res) => {
 
 router.post('/register', async (req, res) => {
     try {
-        // console.log(req.body.username);
+        if (req.body.password !== req.body.confirmPassword) {
+          return res.redirect('/register');
+        }
         const data = {username: req.body.username, password: req.body.password};
-        // console.log(req.body);
-        // console.log(data);
-        // console.log('\n\n\n\n\n');
         response = await axios.post('http://host.docker.internal:3001/users/register', data);
         if (response.data.success) res.redirect('/login');
         else res.redirect('/register');

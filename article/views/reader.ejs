@@ -7,48 +7,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reader</title>
     <style>
+        .hidden {
+            display: none;
+        }
+        
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
         }
 
         header {
+            background-color: #333;
+            color: white;
+            padding: 10px 20px;
+        }
+
+        .header-container {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background-color: #f0f0f0;
-            padding: 10px;
-        }
-
-        main {
-            margin-top: 20px;
-        }
-
-        article {
-            margin-bottom: 20px;
-        }
-
-        h2 {
-            color: #333;
-        }
-
-        p {
-            color: #555;
-        }
-
-        .user-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .user-info span {
-            font-weight: bold;
-        }
-
-        .navigation-buttons {
-            display: flex;
-            justify-content: space-between;
+            margin: 5px auto; /* Auto left and right margins center the element */
+            max-width: 1050px; /* Adjust the maximum width as needed */
         }
 
         button {
@@ -65,6 +44,79 @@
             background-color: #45a049;
         }
 
+        button[type="submit"] {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #2980b9;
+        }
+
+        .navigation-buttons {
+            order: 1; /* Move to the left */
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .search-form {
+            display: flex;
+            align-items: center;
+            order: 2; /* Move to the middle */
+        }
+
+        .search-form input {
+            padding: 8px;
+            margin-right: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .search-form button {
+            background-color: #4caf50;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .search-form button:hover {
+            background-color: #45a049;
+        }
+
+        .role-selector,
+        .user-info {
+            order: 3; /* Move to the right */
+        }
+
+        .user-info button {
+            background-color: #3498db;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .user-info button:hover {
+            background-color: #2980b9;
+        }
+
+        .user-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-info span {
+            font-weight: bold;
+        }
+
         .role-selector {
             display: flex;
             align-items: center;
@@ -77,38 +129,157 @@
         .role-selector select {
             padding: 8px;
         }
+
+        main {
+            margin: 20px auto; /* Auto left and right margins center the element */
+            max-width: 1050px; /* Adjust the maximum width as needed */
+            padding: 0 20px; /* Add padding to the sides if desired */
+        }
+
+        article {
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 10px;
+            word-wrap: break-word;
+        }
+
+        p {
+            color: #555;
+            font-size: 16px;
+            line-height: 1.6;
+            white-space: pre-wrap; /* Preserve spaces and line breaks */
+            word-wrap: break-word; /* Break long words and wrap onto the next line */
+        }
+
+        small {
+            color: #777;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: unset;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 12px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        h3 {
+            color: #333;
+            margin-top: 20px;
+            font-size: 20px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 15px;
+        }
+
+        .comment-content {
+            white-space: pre-wrap; /* Preserve spaces and line breaks */
+            word-wrap: break-word; /* Break long words and wrap onto the next line */
+            border-top: 1px solid #ddd;
+            margin-bottom: 8px;
+            padding-top: 8px;
+        }
+
+        .comment-info {
+            color: #888;
+            font-size: 0.8em;
+        }
+
     </style>
 </head>
 <body>
     <header>
-        <div class="navigation-buttons">
-            <% if (previousArticle) { %>
-                <button onclick="location.href='/articles/<%= previousArticle._id %>'">Previous</button>
-            <% } %>
-            <% if (nextArticle) { %>
-                <button onclick="location.href='/articles/<%= nextArticle._id %>'">Next</button>
-            <% } %>
-        </div>
-        <div class="role-selector">
-            <label for="role">Role:</label>
-            <select id="role" name="role" onchange="changeRole(this)">
-                <option value="reader">Reader</option>
-                <option value="author">Author</option>
-            </select>
-        </div>
-        <div class="user-info">
-            <span>User: <%= username %></span>
-            <button onclick="location.href='/logout'">Logout</button>
+        <div class="header-container">
+            <div class="navigation-buttons">
+                <!-- Previous and Next buttons -->
+                <% if (previousArticle) { %>
+                    <button onclick="location.href='/articles/<%= previousArticle._id %>'">Previous</button>
+                <% } %>
+                <% if (nextArticle) { %>
+                    <button onclick="location.href='/articles/<%= nextArticle._id %>'">Next</button>
+                <% } %>
+            </div>
+            
+            <!-- Search bar -->
+            <form action="/search" method="get" class="search-form">
+                <input type="text" name="q" placeholder="Search articles...">
+                <button type="submit">Search</button>
+            </form>
+            
+            <!-- User role selector -->
+            <div class="role-selector">
+                <!-- <label for="role">Role:</label> -->
+                <select id="role" name="role" onchange="changeRole(this)">
+                    <option value="reader">Reader</option>
+                    <option value="author">Author</option>
+                </select>
+            </div>
+            
+            <!-- User information and logout button -->
+            <div class="user-info">
+                <span><%= username %></span>
+                <button onclick="location.href='/logout'">Logout</button>
+            </div>
         </div>
     </header>
 
-    <main>
+    <main class="hidden">
         <!-- Display the current article with title and body -->
         <% if (currentArticle) { %>
             <article>
                 <h2><%= currentArticle.title %></h2>
                 <p><%= currentArticle.body %></p>
+                <small class="created"><%=currentArticle.dateCreated %></small>
+                <br>
+                <small class="last-edited"><%= currentArticle.dateLastEdited %></small>
             </article>
+            <!-- Form for adding comments -->
+            <form action="/articles/<%= currentArticle._id %>/comments/create" method="post">
+                <label for="comment">Add a Comment:</label>
+                <textarea id="comment" name="comment" rows="4" cols="50" required></textarea>
+                <button type="submit">Submit Comment</button>
+            </form>
+
+            <!-- Display existing comments if any -->
+            <% if (currentArticle.comments && currentArticle.comments.length > 0) { %>
+                <h3>Comments:</h3>
+                <ul>
+                    <% currentArticle.comments.forEach(comment => { %>
+                        <li>
+                            <div class="comment-content"><%= comment.comment %></div>
+                            <div class="comment-info" data-date="<%= comment.dateCreated %>" data-user="<%= comment.username %>">
+                                <!-- Display delete button only if the current user is the author of the comment -->
+                                <% if (comment.username === username) { %>
+                                    <form action="/articles/<%= currentArticle._id %>/comments/<%= comment._id %>/delete" method="post" style="display:inline;border-top: 0px;">
+                                        <button type="submit" style="background-color: #f44336;">Delete</button>
+                                    </form>
+                                <% } %>
+                            </div>
+                        </li>
+                    <% }); %>
+                </ul>
+            <% } %>
         <% } else { %>
             <p>No articles to display.</p>
         <% } %>
@@ -123,31 +294,38 @@
             window.location.href = '/author';
         }
     }
-    function updateUserRole() {
-        // Get the selected role
-        var selectedRole = document.getElementById("role").value;
+    document.addEventListener('DOMContentLoaded', function () {
+        var dateElements = document.querySelectorAll('.comment-info');
 
-        // Create a new form element
-        var form = document.createElement("form");
-        form.method = "POST";
-        form.action = "/";
+        dateElements.forEach(function (element) {
+            var originalDate = element.getAttribute('data-date');
+            var formattedDate = formatDate(originalDate);
+            element.innerHTML = element.getAttribute('data-user') + ' on ' + formattedDate + element.innerHTML;
+        });
 
-        // Create a new input element for the role
-        var roleInput = document.createElement("input");
-        roleInput.type = "hidden";
-        roleInput.name = "role";
-        roleInput.value = selectedRole;
+        dateElements = document.querySelectorAll('.last-edited');
 
-        // Append the input to the form
-        form.appendChild(roleInput);
+        dateElements.forEach(function (element) {
+            originalDate = element.textContent;
+            formattedDate = formatDate(originalDate);
+            element.textContent = 'Last Edited: ' + formattedDate;
+        });
 
-        // Append the form to the document body
-        document.body.appendChild(form);
+        dateElements = document.querySelectorAll('.created');
 
-        // Submit the form
-        form.submit();
+        dateElements.forEach(function (element) {
+            originalDate = element.textContent;
+            formattedDate = formatDate(originalDate);
+            element.textContent = 'Created: ' + formattedDate;
+        });
 
-        // Refresh the page
-        location.reload(true);
-    }
+        // Remove the 'hidden' class from the body element to make it visible
+        document.querySelector('main').classList.remove('hidden');
+
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric', timeZoneName: 'short' };
+            const formattedDate = new Date(dateString).toLocaleDateString('en-US', options);
+            return formattedDate;
+        }
+    });
 </script>

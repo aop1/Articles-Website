@@ -7,33 +7,59 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home Page</title>
     <style>
+        .hidden {
+            display: none;
+        }
+
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
         }
 
         header {
+            background-color: #333;
+            color: white;
+            padding: 10px 20px;
+        }
+
+        .header-container {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background-color: #f0f0f0;
-            padding: 10px;
+            margin: 0px auto; /* Auto left and right margins center the element */
+            max-width: 1200px; /* Adjust the maximum width as needed */
         }
 
         main {
-            margin-top: 20px;
+            margin: 20px auto; /* Auto left and right margins center the element */
+            max-width: 1200px; /* Adjust the maximum width as needed */
+            padding: 0 20px; /* Add padding to the sides if desired */
         }
 
         article {
             margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
         h2 {
             color: #333;
+            margin-bottom: 10px;
+            word-wrap: break-word;
         }
 
         p {
             color: #555;
+            margin-bottom: 10px;
+            white-space: pre-wrap; /* Preserve spaces and line breaks */
+            word-wrap: break-word; /* Break long words and wrap onto the next line */
+        }
+
+        small {
+            color: #777;
         }
 
         button {
@@ -48,25 +74,41 @@
         button:hover {
             background-color: #45a049;
         }
+
+        .first-article {
+            background-color: #dff0d8;
+        }
+        .first-article h2{
+            font-size: 48px;
+            font-weight: bold;
+        }
+        .first-article p {
+            font-size: 24px;
+        }
     </style>
 </head>
-<body>
+<body class="hidden">
     <header>
-        <div>
-            <h1>Latest Articles</h1>
-        </div>
-        <div>
-            <button onclick="location.href='/register'">Register</button>
-            <button onclick="location.href='/login'">Login</button>
+        <div class="header-container">
+            <div>
+                <h1>Latest Articles</h1>
+            </div>
+            <div>
+                <button onclick="location.href='/register'">Register</button>
+                <button onclick="location.href='/login'">Login</button>
+            </div>
         </div>
     </header>
 
     <main>
         <!-- Display the first article as a headline with body -->
         <% if (firstArticle) { %>
-            <article>
+            <article class="first-article">
                 <h2><%= firstArticle.title %></h2>
                 <p><%= firstArticle.body %></p>
+                <small class="created"><%=firstArticle.dateCreated %></small>
+                <br>
+                <small class="last-edited"><%= firstArticle.dateLastEdited %></small>
             </article>
         <% } %>
 
@@ -75,8 +117,41 @@
             <article>
                 <h2><%= article.title %></h2>
                 <p><%= article.teaser %></p>
+                <small style="font-size: 12px;" class="created"><%=article.dateCreated %></small>
+                <br>
+                <small style="font-size: 12px;" class="last-edited"><%= article.dateLastEdited %></small>
             </article>
         <% } %>
     </main>
+
+    <script>
+        // Function to format date
+        document.addEventListener('DOMContentLoaded', function () {
+            var dateElements = document.querySelectorAll('.last-edited');
+
+            dateElements.forEach(function (element) {
+                var originalDate = element.textContent;
+                var formattedDate = formatDate(originalDate);
+                element.textContent = 'Last Edited: ' + formattedDate;
+            });
+
+            dateElements = document.querySelectorAll('.created');
+
+            dateElements.forEach(function (element) {
+                originalDate = element.textContent;
+                formattedDate = formatDate(originalDate);
+                element.textContent = 'Created: ' + formattedDate;
+            });
+
+            // Remove the 'hidden' class from the body element to make it visible
+            document.querySelector('body').classList.remove('hidden');
+
+            function formatDate(dateString) {
+                const options = { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric', timeZoneName: 'short' };
+                const formattedDate = new Date(dateString).toLocaleDateString('en-US', options);
+                return formattedDate;
+            }
+        });
+    </script>
 </body>
 </html>

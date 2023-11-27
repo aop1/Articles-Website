@@ -1,0 +1,115 @@
+<!-- views/searchResults.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results</title>
+    <style>
+        .hidden {
+            display: none;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px auto; /* Auto left and right margins center the element */
+            max-width: 1000px; /* Adjust the maximum width as needed */
+            padding: 0 20px; /* Add padding to the sides if desired */
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        a {
+            text-decoration: none;
+            color: #3498db;
+            font-weight: bold;
+            word-wrap: break-word;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        p {
+            color: #555;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        small {
+            color: #777;
+        }
+
+        .back-link {
+            display: block;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body class="hidden">
+    <h2>Search Results</h2>
+
+    <% if (articles.length > 0) { %>
+        <ul>
+            <% articles.forEach(article => { %>
+                <li>
+                    <h3><a href="/articles/author/<%= article._id %>"><%= article.title %></a></h3>
+                    <p><%= article.teaser %></p>
+                    <small class="created"><%=article.dateCreated %></small>
+                    <br>
+                    <small class="last-edited"><%= article.dateLastEdited %></small>
+                </li>
+            <% }); %>
+        </ul>
+    <% } else { %>
+        <p>No articles found.</p>
+    <% } %>
+
+    <a class="back-link" href="/author">Back to Home</a>
+
+    <!-- JavaScript to format the date nicely -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var dateElements = document.querySelectorAll('.last-edited');
+
+            dateElements.forEach(function (element) {
+                var originalDate = element.textContent;
+                var formattedDate = formatDate(originalDate);
+                element.textContent = 'Last Edited: ' + formattedDate;
+            });
+
+            dateElements = document.querySelectorAll('.created');
+
+            dateElements.forEach(function (element) {
+                originalDate = element.textContent;
+                formattedDate = formatDate(originalDate);
+                element.textContent = 'Created: ' + formattedDate;
+            });
+
+            // Remove the 'hidden' class from the body element to make it visible
+            document.querySelector('body').classList.remove('hidden');
+
+            function formatDate(dateString) {
+                const options = { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric', timeZoneName: 'short' };
+                const formattedDate = new Date(dateString).toLocaleDateString('en-US', options);
+                return formattedDate;
+            }
+        });
+    </script>
+</body>
+</html>

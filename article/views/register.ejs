@@ -13,11 +13,16 @@
         }
 
         header {
+            background-color: #f0f0f0;
+            padding: 0px 20px;
+        }
+
+        .header-container {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background-color: #f0f0f0;
-            padding: 10px;
+            margin: 0px auto; /* Auto left and right margins center the element */
+            max-width: 600px; /* Adjust the maximum width as needed */
         }
 
         main {
@@ -62,12 +67,14 @@
 </head>
 <body>
     <header>
-        <div>
-            <h1>Register</h1>
-        </div>
-        <div>
-            <button onclick="location.href='/register'">Register</button>
-            <button onclick="location.href='/login'">Login</button>
+        <div class="header-container">
+            <div>
+                <h1>Register</h1>
+            </div>
+            <div>
+                <button onclick="location.href='/register'">Register</button>
+                <button onclick="location.href='/login'">Login</button>
+            </div>
         </div>
     </header>
 

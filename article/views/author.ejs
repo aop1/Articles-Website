@@ -1,4 +1,4 @@
-<!-- article/views/reader.ejs -->
+<!-- article/views/author.ejs -->
 
 <!DOCTYPE html>
 <html lang="en">
@@ -13,42 +13,17 @@
         }
 
         header {
+            background-color: #333;
+            color: white;
+            padding: 10px 20px;
+        }
+
+        .header-container {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background-color: #f0f0f0;
-            padding: 10px;
-        }
-
-        main {
-            margin-top: 20px;
-        }
-
-        article {
-            margin-bottom: 20px;
-        }
-
-        h2 {
-            color: #333;
-        }
-
-        p {
-            color: #555;
-        }
-
-        .user-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .user-info span {
-            font-weight: bold;
-        }
-
-        .navigation-buttons {
-            display: flex;
-            justify-content: space-between;
+            margin: 5px auto; /* Auto left and right margins center the element */
+            max-width: 1050px; /* Adjust the maximum width as needed */
         }
 
         button {
@@ -65,6 +40,66 @@
             background-color: #45a049;
         }
 
+        .navigation-buttons {
+            order: 1; /* Move to the left */
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .search-form {
+            display: flex;
+            align-items: center;
+            order: 2; /* Move to the middle */
+        }
+
+        .search-form input {
+            padding: 8px;
+            margin-right: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .search-form button {
+            background-color: #4caf50;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .search-form button:hover {
+            background-color: #45a049;
+        }
+
+        .role-selector,
+        .user-info {
+            order: 3; /* Move to the right */
+        }
+
+        .user-info button {
+            background-color: #3498db;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .user-info button:hover {
+            background-color: #2980b9;
+        }
+
+        .user-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-info span {
+            font-weight: bold;
+        }
+
         .role-selector {
             display: flex;
             align-items: center;
@@ -78,8 +113,21 @@
             padding: 8px;
         }
 
+        main {
+            margin-top: 20px;
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        p {
+            color: #555;
+        }
+
         article {
-            max-width: 600px;
+            /* margin-bottom: 20px; */
+            max-width: 1000px;
             margin: 0 auto;
             background-color: #f9f9f9;
             padding: 20px;
@@ -93,36 +141,48 @@
             color: #333;
         }
 
-        input,
+        .edit-input,
         textarea {
             width: 100%;
             padding: 8px;
             margin-bottom: 16px;
             box-sizing: border-box;
         }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px; /* Adjust the gap as needed */
+        }
+
     </style>
 </head>
 <body>
     <header>
-        <div class="navigation-buttons">
-            <% if (previousArticle) { %>
-                <button onclick="location.href='/articles/author/<%= previousArticle._id %>'">Previous</button>
-            <% } %>
-            <% if (nextArticle) { %>
-                <button onclick="location.href='/articles/author/<%= nextArticle._id %>'">Next</button>
-            <% } %>
-        </div>
-        <div class="role-selector">
-            <label for="role">Role:</label>
-            <select id="role" name="role" onchange="changeRole(this)">
-                <option value="author">Author</option>
-                <option value="reader">Reader</option>
-            </select>
-            <button onclick="location.href='/articles/create'">Create</button>
-        </div>
-        <div class="user-info">
-            <span>User: <%= username %></span>
-            <button onclick="location.href='/logout'">Logout</button>
+        <div class="header-container">
+            <div class="navigation-buttons">
+                <% if (previousArticle) { %>
+                    <button onclick="location.href='/articles/author/<%= previousArticle._id %>'">Previous</button>
+                <% } %>
+                <% if (nextArticle) { %>
+                    <button onclick="location.href='/articles/author/<%= nextArticle._id %>'">Next</button>
+                <% } %>
+            </div>
+            <!-- Search bar -->
+            <form action="/author/search" method="get" class="search-form">
+                <input type="text" name="q" placeholder="Search articles...">
+                <button type="submit">Search</button>
+            </form>
+            <div class="role-selector">
+                <select id="role" name="role" onchange="changeRole(this)">
+                    <option value="author">Author</option>
+                    <option value="reader">Reader</option>
+                </select>
+                <button onclick="location.href='/articles/create'">Create</button>
+            </div>
+            <div class="user-info">
+                <span><%= username %></span>
+                <button onclick="location.href='/logout'">Logout</button>
+            </div>
         </div>
     </header>
 
@@ -133,28 +193,30 @@
                 <form method="POST" action="/articles/author/<%= currentArticle._id %>">
                     <div>
                         <label for="title">Title:</label>
-                        <input type="text" id="title" name="title" value="<%= currentArticle.title %>" required>
+                        <input class="edit-input" type="text" id="title" name="title" value="<%= currentArticle.title %>" maxlength="100" required>
                     </div>
                     <div>
                         <label for="teaser">Teaser:</label>
-                        <input type="text" id="teaser" name="teaser" value="<%= currentArticle.teaser %>" required>
+                        <textarea type="text" id="teaser" name="teaser" rows="8" required><%= currentArticle.teaser %></textarea>
                     </div>
                     <div>
                         <label for="body">Body:</label>
-                        <textarea id="body" name="body" rows="4" required><%= currentArticle.body %></textarea>
+                        <textarea id="body" name="body" rows="16s" required><%= currentArticle.body %></textarea>
                     </div>
                     <div>
                         <label for="categories">Categories:</label>
-                        <input type="text" id="categories" name="categories" value="<%= currentArticle.categories.join(', ') %>">
+                        <input class="edit-input" type="text" id="categories" name="categories" value="<%= currentArticle.categories.join(', ') %>">
                     </div>
-                    <button type="submit">Edit</button>
-                </form>
-                <form method="POST" action="/articles/author/delete/<%= currentArticle._id %>" style="margin-top: 10px;">
-                    <button type="submit" style="background-color: #f44336;">Delete</button>
+                    <div class="action-buttons">
+                        <button type="submit">Edit</button>
+                        <button onclick="confirmDelete()" style="background-color: #f44336;">Delete</button>
+                    </div>
                 </form>
             </article>
         <% } else { %>
-            <p>No articles to display.</p>
+            <article>
+                <h2>No articles to display.</h2>
+            </article>
         <% } %>
     </main>
 </body>
@@ -167,31 +229,14 @@
             window.location.href = '/reader';
         }
     }
-    function updateUserRole() {
-        // Get the selected role
-        var selectedRole = document.getElementById("role").value;
-
-        // Create a new form element
-        var form = document.createElement("form");
-        form.method = "POST";
-        form.action = "/";
-
-        // Create a new input element for the role
-        var roleInput = document.createElement("input");
-        roleInput.type = "hidden";
-        roleInput.name = "role";
-        roleInput.value = selectedRole;
-
-        // Append the input to the form
-        form.appendChild(roleInput);
-
-        // Append the form to the document body
-        document.body.appendChild(form);
-
-        // Submit the form
-        form.submit();
-
-        // Refresh the page
-        location.reload(true);
+    <% if (currentArticle) { %>
+    function confirmDelete() {
+        event.preventDefault(); // Prevent the default form submission behavior
+        if (confirm("Are you sure you want to delete this article?")) {
+            document.forms[0].action = "/articles/author/delete/<%= currentArticle._id %>";
+            document.forms[0].method = "POST";
+            document.forms[0].submit();
+        }
     }
+    <% } %>
 </script>
