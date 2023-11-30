@@ -64,7 +64,11 @@ const articleSchema = new Schema({
   comments: {
     type: [commentSchema],
     default: []
-  }
+  },
+  imageExtension: {
+    type: String,
+    default: null
+  },
 });
 
 // Pre-save hook to update dateLastEdited before saving

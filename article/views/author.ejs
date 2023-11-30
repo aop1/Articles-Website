@@ -190,22 +190,30 @@
         <!-- Display the current article with title and body -->
         <% if (currentArticle) { %>
             <article>
-                <form method="POST" action="/articles/author/<%= currentArticle._id %>">
+                <form method="POST" action="/articles/author/<%= currentArticle._id %>" enctype="multipart/form-data">
                     <div>
                         <label for="title">Title:</label>
                         <input class="edit-input" type="text" id="title" name="title" value="<%= currentArticle.title %>" maxlength="100" required>
                     </div>
                     <div>
                         <label for="teaser">Teaser:</label>
-                        <textarea type="text" id="teaser" name="teaser" rows="8" required><%= currentArticle.teaser %></textarea>
+                        <textarea type="text" id="teaser" name="teaser" rows="4" required><%= currentArticle.teaser %></textarea>
                     </div>
                     <div>
                         <label for="body">Body:</label>
-                        <textarea id="body" name="body" rows="16s" required><%= currentArticle.body %></textarea>
+                        <textarea id="body" name="body" rows="20" required><%= currentArticle.body %></textarea>
                     </div>
                     <div>
-                        <label for="categories">Categories:</label>
+                        <label for="categories">Categories: (comma-separated):</label>
                         <input class="edit-input" type="text" id="categories" name="categories" value="<%= currentArticle.categories.join(', ') %>">
+                    </div>
+                    <div>
+                        <label for="image">Update Image:</label>
+                        <input class="edit-input" type="file" id="image" name="image" accept="image/*">
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <label for="removeImage">Remove Image:</label>
+                        <input class="edit-input" style="width: unset;" type="checkbox" id="removeImage" name="removeImage">
                     </div>
                     <div class="action-buttons">
                         <button type="submit">Edit</button>

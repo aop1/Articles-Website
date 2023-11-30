@@ -22,6 +22,7 @@
 // article/routes/articles.js
 const express = require('express');
 const router = express.Router();
+const axios = require('axios');
 const { Article, Comment } = require('../models/article');
 
 // Render create page
@@ -35,22 +36,63 @@ router.get('/articles/create', async (req, res) => {
 }
 });
 
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs/promises');
+
+// Set up multer storage for file uploads
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'images/');
+  },
+  filename: function (req, file, cb) {
+    // Use article ID as the filename
+    cb(null, 'newImage' + path.extname(file.originalname));
+  }
+});
+
+// Set up multer middleware
+const upload = multer({ storage: storage });
+
 // Create an article
-router.post('/articles/create', async (req, res) => {
+router.post('/articles/create', upload.single('image'), async (req, res) => {
   try {
-    const { title, teaser, body, categories } = req.body;
-    // console.log(req.user);
-    // console.log(req.user_id);
+    // console.log('Form Body:', req.body);
+    const { title, teaser, body, categories, removeImage } = req.body;
+
+    // Check if the user requested to remove the image
+    if (removeImage === 'on' && req.file) {
+      // Remove the temporary image file if it exists
+      const tempImagePath = path.join('images/', 'newImage' + path.extname(req.file.originalname));
+      await fs.unlink(tempImagePath);
+    }
+
+    // Check if an image file was uploaded
+    // const hasImage = req.file ? true : false;
+    // const imageExtension = req.file ? req.file.mimetype.split('/')[1] : null;
+    const imageExtension = (req.file && !removeImage )? path.extname(req.file.originalname) : null;
+    // console.log(imageExtension);
     const newArticle = new Article({
       title,
       teaser,
       body,
       categories,
+      imageExtension,
       user: req.user.id
     });
 
+    // Save the article and set articleId for image filename
     const savedArticle = await newArticle.save();
-    // res.json(savedArticle);
+    
+    // If an image was uploaded, update the image filename to the article ID
+    if (imageExtension) {
+      const tempImagePath = path.join('images/', 'newImage' + imageExtension);
+      const newImagePath = path.join('images/', savedArticle._id + imageExtension);
+
+      // Rename the file to the article ID
+      await fs.rename(tempImagePath, newImagePath);
+    }
+
     res.redirect('/author');
   } catch (error) {
     console.error('Error creating article:\n', error);
@@ -60,7 +102,7 @@ router.post('/articles/create', async (req, res) => {
 });
 
 // Update an article
-router.post('/articles/author/:id', async (req, res) => {
+router.post('/articles/author/:id', upload.single('image'), async (req, res) => {
   try {
     // Check if the user making the request is the author of the article
     const articleToUpdate = await Article.findById(req.params.id);
@@ -68,15 +110,45 @@ router.post('/articles/author/:id', async (req, res) => {
       return res.status(403).send('Unauthorized: You are not the author of this article');
     }
 
-    const { title, teaser, body, categories } = req.body;
+    const { title, teaser, body, categories, removeImage } = req.body;
+
+    // Check if the user requested to remove the image
+    if (removeImage === 'on') {
+      // Remove the temporary image file if it exists
+      if (req.file) {
+        const tempImagePath = path.join('images/', 'newImage' + path.extname(req.file.originalname));
+        await fs.unlink(tempImagePath);
+      }
+      // Remove the existing image file if it exists
+      if (articleToUpdate.imageExtension) {
+        const existingImagePath = path.join('images/', articleToUpdate._id + articleToUpdate.imageExtension);
+        await fs.unlink(existingImagePath);
+      }
+    }
+
+    const hasNewImage = req.file && !removeImage; 
+    let imageExtension = hasNewImage ? path.extname(req.file.originalname) : articleToUpdate.imageExtension;
+    imageExtension = removeImage ? null : imageExtension;
     const updatedArticle = await Article.findByIdAndUpdate(
       req.params.id,
-      { title, teaser, body, categories },
+      { title, teaser, body, categories, imageExtension },
       { new: true }
     );
 
     if (!updatedArticle) {
       return res.status(404).send('Article not found');
+    }
+
+    if (hasNewImage) {
+      // Remove the existing image file if it exists
+      if (articleToUpdate.imageExtension) {
+        const existingImagePath = path.join('images/', articleToUpdate._id + articleToUpdate.imageExtension);
+        await fs.unlink(existingImagePath);
+      }
+      // Use the temporary name for the new image during the update
+      const tempImagePath = path.join('images/', 'newImage' + imageExtension);
+      const newImagePath = path.join('images/', updatedArticle._id + imageExtension);
+      await fs.rename(tempImagePath, newImagePath);
     }
 
     res.redirect(`/articles/author/${req.params.id}`);
@@ -143,8 +215,9 @@ router.get('/articles/:id', async (req, res) => {
       dateCreated: { $gt: currentArticle.dateCreated }
     }).sort({ dateCreated: 1 });
 
-    const username = req.user.username;
-    res.render('reader', {username, currentArticle, previousArticle, nextArticle});
+    const user = req.user;
+    const response = await axios.post('http://host.docker.internal:3002/ad');
+    res.render('reader', {user, currentArticle, previousArticle, nextArticle, ad: response.data.ad});
   } catch (error) {
     console.error('Error retrieving article:\n', error);
     res.status(500).send('Internal Server Error');
@@ -163,6 +236,12 @@ router.post('/articles/author/delete/:id', async (req, res) => {
     // Check if the user making the request is the author of the article
     if (req.user.id !== articleToDelete.user.toString()) {
       return res.status(403).send('Unauthorized: You are not the author of this article');
+    }
+
+    if (articleToDelete.imageExtension) {
+      // Remove the existing image file if it exists
+      const existingImagePath = path.join('images/', articleToDelete._id + articleToDelete.imageExtension);
+      await fs.unlink(existingImagePath);
     }
 
     // Perform the deletion

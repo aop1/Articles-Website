@@ -14,10 +14,6 @@ router.get('/', async (req, res) => {
     response = await axios.post('http://host.docker.internal:3001/users/authenticateToken', {token: token});
     if (response.data.success) {
       res.redirect('/reader');
-      // const username = req.user.username;
-      // const username = response.data.user.username;
-      // const currentArticle = '';
-      // res.render('reader', {username, currentArticle});
     } else {
       // Redirect or handle unauthenticated users
       // Retrieve the last 10 articles
@@ -26,8 +22,13 @@ router.get('/', async (req, res) => {
       // Separate the first article from the rest
       const [firstArticle, ...remainingArticles] = articles;
 
+      // Retrieve ad from ad microservice
+      // const response = await axios.post('http://host.docker.internal:3002/ad/image');
+      // console.log(response.data);
+      // res.render('index', { firstArticle, remainingArticles, imageData: response.data });
+      const response = await axios.post('http://host.docker.internal:3002/ad');
       // Render the home page with the article data
-      res.render('index', { firstArticle, remainingArticles });
+      res.render('index', { firstArticle, remainingArticles, ad: response.data.ad});
     }
   } catch (error) {
     console.error('Error accessing home page:', error);
@@ -37,7 +38,7 @@ router.get('/', async (req, res) => {
 
 router.get('/reader', authenticateToken, async (req, res) => {
   try {
-    const username = req.user.username;
+    const user = req.user;
     const currentArticle = await Article.findOne().sort({ dateCreated: -1 });
 
     let previousArticle = '', nextArticle = '';
@@ -50,7 +51,8 @@ router.get('/reader', authenticateToken, async (req, res) => {
       }).sort({ dateCreated: 1 });
     }
 
-    res.render('reader', {username, currentArticle, previousArticle, nextArticle});
+    const response = await axios.post('http://host.docker.internal:3002/ad');
+    res.render('reader', {user, currentArticle, previousArticle, nextArticle, ad: response.data.ad});
   } catch (error) {
     console.error('Error accessing reader:', error);
     res.status(500).send('Internal Server Error');

@@ -8,6 +8,7 @@ const bodyParser = require('body-parser');
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const articlesRouter = require('./routes/articles');
+const adsRouter = require('./routes/ads');
 
 const app = express();
 const PORT = 3000;
@@ -18,8 +19,11 @@ mongoose.connect('mongodb://host.docker.internal:27017/daily', { useNewUrlParser
 app.set('view engine', 'ejs');
 
 app.use(bodyParser.urlencoded({ extended: true }));
-// app.use(bodyParser.json());
+app.use(bodyParser.json());
 // app.use(cookieParser());
+
+// Middleware to serve static files (including images)
+app.use('/images', express.static('images'));
 
 // // Middleware to handle user authentication (replace with your actual authentication logic)
 // app.use((req, res, next) => {
@@ -71,6 +75,8 @@ app.use(session({
 app.use('', usersRouter);
 
 app.use('', indexRouter);
+
+app.use('/ad', adsRouter);
 
 const authenticateToken = require('./middleware/authenticate');
 // // Middleware to handle user authentication

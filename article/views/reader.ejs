@@ -138,7 +138,9 @@
 
         article {
             margin-bottom: 20px;
-            background-color: #f9f9f9;
+            /* background-color: #f5f5f5; */
+            /* background-color: #bae0ff; */
+            background-color: #cfe9ff;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -206,6 +208,20 @@
             font-size: 0.8em;
         }
 
+        img {
+            /* width: 100%;
+            height: 100px;
+            object-fit: cover; /* Ensures the image covers the specified dimensions */
+            margin-bottom: 20px;
+            max-width: 950px;
+        }
+
+        .img-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
     </style>
 </head>
 <body>
@@ -238,7 +254,7 @@
             
             <!-- User information and logout button -->
             <div class="user-info">
-                <span><%= username %></span>
+                <span><%= user.username %></span>
                 <button onclick="location.href='/logout'">Logout</button>
             </div>
         </div>
@@ -250,10 +266,21 @@
             <article>
                 <h2><%= currentArticle.title %></h2>
                 <p><%= currentArticle.body %></p>
+                <% if (currentArticle.imageExtension) { %>
+                    <div class="img-container">
+                        <img src="/images/<%= currentArticle._id %><%= currentArticle.imageExtension %>" alt="Article Image">
+                    </div>
+                <% } %>
                 <small class="created"><%=currentArticle.dateCreated %></small>
                 <br>
                 <small class="last-edited"><%= currentArticle.dateLastEdited %></small>
             </article>
+
+            <div class="img-container">
+                <!-- Use the image data to display the image -->
+                <img src="<%= ad.path %>" alt="Ad" onload="sendImpression()" onclick="sendInteraction()" style="cursor: pointer; max-width: 620px;">
+            </div>
+
             <!-- Form for adding comments -->
             <form action="/articles/<%= currentArticle._id %>/comments/create" method="post">
                 <label for="comment">Add a Comment:</label>
@@ -270,7 +297,7 @@
                             <div class="comment-content"><%= comment.comment %></div>
                             <div class="comment-info" data-date="<%= comment.dateCreated %>" data-user="<%= comment.username %>">
                                 <!-- Display delete button only if the current user is the author of the comment -->
-                                <% if (comment.username === username) { %>
+                                <% if (comment.username === user.username) { %>
                                     <form action="/articles/<%= currentArticle._id %>/comments/<%= comment._id %>/delete" method="post" style="display:inline;border-top: 0px;">
                                         <button type="submit" style="background-color: #f44336;">Delete</button>
                                     </form>
@@ -288,12 +315,75 @@
 </html>
 
 <script>
+    function sendImpression() {
+        // Prepare data for the POST request
+        const postData = {
+            ad_id: '<%= ad._id %>',
+            eventType: 'impression',
+            userAgent: navigator.userAgent,
+            user: '<%= user.id %>',
+            article: '<%= currentArticle._id %>'
+        };
+
+        const hostname = window.location.hostname;
+        const port = window.location.port;
+        // Send a POST request to the '/ad/event' endpoint
+        fetch(`/ad/event`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(postData),
+        })
+        .then(response => {
+            if (!response.ok) {
+                console.error('Error sending impression:', response.statusText);
+            }
+        })
+        .catch(error => {
+            console.error('Error sending impression:', error);
+        });
+    }
+
+    function sendInteraction() {
+        // Prepare data for the POST request
+        const postData = {
+            ad_id: '<%= ad._id %>',
+            eventType: 'interaction',
+            userAgent: navigator.userAgent,
+            user: '<%= user.id %>',
+            article: '<%= currentArticle._id %>'
+        };
+
+        // Send a POST request to the '/ad/event' endpoint
+        fetch('/ad/event', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(postData),
+        })
+        .then(response => {
+            if (!response.ok) {
+                console.error('Error sending interaction:', response.statusText);
+            }
+        })
+        .catch(error => {
+            console.error('Error sending interaction:', error);
+        });
+
+        // Open a new tab with the specified URL
+        const newTabUrl = '<%= ad.url %>'; 
+        window.open(newTabUrl, '_blank');
+    }
+
     function changeRole(select) {
         const selectedRole = select.value;
         if (selectedRole === 'author') {
             window.location.href = '/author';
         }
     }
+
     document.addEventListener('DOMContentLoaded', function () {
         var dateElements = document.querySelectorAll('.comment-info');
 

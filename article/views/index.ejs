@@ -85,6 +85,20 @@
         .first-article p {
             font-size: 24px;
         }
+
+        img {
+            /* width: 100%;
+            height: 100px;
+            object-fit: cover; /* Ensures the image covers the specified dimensions */
+            margin-bottom: 20px;
+            max-width: 750px;
+        }
+
+        .img-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
     </style>
 </head>
 <body class="hidden">
@@ -106,11 +120,21 @@
             <article class="first-article">
                 <h2><%= firstArticle.title %></h2>
                 <p><%= firstArticle.body %></p>
+                <% if (firstArticle.imageExtension) { %>
+                    <div class="img-container">
+                        <img src="/images/<%= firstArticle._id %><%= firstArticle.imageExtension %>" alt="Article Image" style="max-width: 1050px;">
+                    </div>
+                <% } %>
                 <small class="created"><%=firstArticle.dateCreated %></small>
                 <br>
                 <small class="last-edited"><%= firstArticle.dateLastEdited %></small>
             </article>
         <% } %>
+
+        <div class="img-container">
+            <!-- Use the image data to display the image -->
+            <img src="<%= ad.path %>" alt="Ad" onload="sendImpression()" onclick="sendInteraction()" style="cursor: pointer;">
+        </div>
 
         <!-- Display the remaining articles with title and teaser -->
         <% for (const article of remainingArticles) { %>
@@ -125,6 +149,68 @@
     </main>
 
     <script>
+        function sendImpression() {
+            // Prepare data for the POST request
+            const postData = {
+                ad_id: '<%= ad._id %>',
+                eventType: 'impression',
+                userAgent: navigator.userAgent,
+                user: '000000000000000000000000',
+                article: '<%= firstArticle._id %>'
+            };
+
+            const hostname = window.location.hostname;
+            const port = window.location.port;
+            // Send a POST request to the '/ad/event' endpoint
+            fetch(`/ad/event`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(postData),
+            })
+            .then(response => {
+                if (!response.ok) {
+                    console.error('Error sending impression:', response.statusText);
+                }
+            })
+            .catch(error => {
+                console.error('Error sending impression:', error);
+            });
+        }
+
+        function sendInteraction() {
+            // Prepare data for the POST request
+            const postData = {
+                ad_id: '<%= ad._id %>',
+                eventType: 'interaction',
+                userAgent: navigator.userAgent,
+                user: '000000000000000000000000',
+                article: '<%= firstArticle._id %>'
+            };
+
+            // Send a POST request to the '/ad/event' endpoint
+            fetch('/ad/event', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(postData),
+            })
+            .then(response => {
+                if (!response.ok) {
+                    console.error('Error sending interaction:', response.statusText);
+                }
+            })
+            .catch(error => {
+                console.error('Error sending interaction:', error);
+            });
+
+            // Open a new tab with the specified URL
+            const newTabUrl = '<%= ad.url %>'; 
+            window.open(newTabUrl, '_blank');
+        }
+
         // Function to format date
         document.addEventListener('DOMContentLoaded', function () {
             var dateElements = document.querySelectorAll('.last-edited');

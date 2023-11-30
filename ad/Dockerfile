@@ -29,13 +29,8 @@ USER node
 # Copy the rest of the source files into the image.
 COPY . .
 
-# Change ownership and permissions of the 'images/' directory
-USER root
-RUN chown -R node:node /usr/src/app/images
-USER node
-
 # Expose the port that the application listens on.
-EXPOSE 3000
+EXPOSE 3002
 
 # Run the application.
 CMD node app.js
